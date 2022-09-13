@@ -46,7 +46,7 @@ Make sure your Pi is configured to automatically login to the user account you c
 
 Clone the git repository into the `$HOME/app` directory.
 ```sh
-git clone https://eoslcm.gtri.gatech.edu/bitbucket/scm/~cjohnston8/lab_management_asset_organizer.git $HOME/app
+git clone https://github.com/geoge23/lmao.git $HOME/app
 ```
 
 1) Configure the app
