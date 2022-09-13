@@ -92,7 +92,7 @@ Download and install PostgreSQL from [the website](https://www.postgresql.org/do
 
 Clone the git repository onto your system
 ```sh
-git clone https://eoslcm.gtri.gatech.edu/bitbucket/scm/~cjohnston8/lab_management_asset_organizer.git
+git clone https://github.com/geoge23/lmao.git
 ```
 
 4) Configure environment variables
