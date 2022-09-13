@@ -1,0 +1,96 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+  <form class="admin-form" id="Item">
+    <h4>Quickly create an item</h4>
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" name="name" class="form-control" id="name" placeholder="Name">
+    </div>
+    <div class="form-group">
+      <label for="barcode">Barcode</label>
+      <input type="text" name="barcode" class="form-control" id="barcode" placeholder="lmao61">
+    </div>
+    <div class="form-group">
+      <label for="area">Area</label>
+      <input type="number" name="area" class="form-control" id="area" placeholder="121">
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea class="form-control" name="description" id="description" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="last-calibration">Last Calibration</label>
+      <input type="date" name="last-calibration" class="form-control" style="height: 50px;" id="last-calibration">
+    </div>
+  </form>
+  <form enctype="multipart/form-data" id="Image">
+    <div class="form-group">
+      <label for="file">Image</label>
+      <input class="form-control" id="image-file" type="file" name="file">
+    </div>
+    <div class="form-group">
+      <label for="image-id">Or attach an Image ID</label>
+      <input type="text" class="form-control" id="image-id" placeholder="image-id">
+    </div>
+  </form>
+  <p id="error" style="color: red; font-size: 25px"></p>
+  <button class="btn btn-primary" id="submit-button">Submit</button>
+  <button class="btn" id="submit-create-button">Submit and Create Another</button>
+  <button class="btn" id="cancel-button">Cancel</button>
+  <script>
+    document.querySelector('#cancel-button').addEventListener('click', () => location.href = `{{ url_for('item.index_view') }}`)
+    document.querySelector('#submit-button').addEventListener('click', submitForm)
+    document.querySelector('#submit-create-button').addEventListener('click', async () => {
+      await submitForm(false);
+      
+    })
+
+    async function submitForm(should_redirect=true) {
+      const formData = new FormData(document.querySelector('#Item'));
+      console.log(formData.entries())
+      const formJson = Object.fromEntries(formData.entries());
+
+      if (document.querySelector('#image-id').value) {
+        formJson['image_id'] = document.querySelector('#image-id').value;
+      } else if (document.querySelector('#image-file').value) {
+        const imageData = new FormData(document.querySelector('#Image'));
+
+        const imageReq = await fetch('/image', {
+          method: "POST",
+          body: imageData,
+          headers: {
+            "Authorization": `Bearer {{ api_key }}`
+          }
+        });
+        if (imageReq.status == 200) {
+          const imageJson = await imageReq.json();
+          formJson['image_id'] = imageJson.id;
+        } else {
+          document.querySelector('#error').textContent = "Error uploading image- " + imageReq.statusText;
+          return;
+        }
+      }
+
+      const e = await fetch('/item', {
+        method: "POST",
+        body: JSON.stringify(formJson),
+        headers: {
+          "Authorization": `Bearer {{ api_key }}`,
+          "Content-Type": "application/json"
+        }
+      })
+      const eBody = await e.json()
+      if (e.status != 200) {
+        document.querySelector('#error').textContent = "Error creating item- " + eBody.error;
+      } else {
+        document.querySelector('#error').textContent = ""
+        if (should_redirect) {
+          window.location.href = "{{ url_for('item.index_view') }}" + "details/?id=" + eBody.id;
+        } else {
+          document.querySelector('#Item').reset()
+          document.querySelector('#Image').reset()
+        }
+      }
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+  <p>Upload an image</p>
+  <form enctype="multipart/form-data">
+    <input class="form-control" type="file" name="file">
+    <input class="btn btn-primary" style="margin-top: 10px;" type="submit" value="Upload">
+  </form>
+  <p id="error" style="color: red; font-size: 25px"></p>
+  <script>
+    const form = document.querySelector('form');
+    const err = document.querySelector('#error');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      fetch('/image', {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Authorization": `Bearer {{ api_key }}`
+        }
+      })
+      .then(async (e) => {
+        if (e.status != 200) {
+          err.textContent = "Error uploading image- " + e.statusText;
+        } else {
+          const body = await e.json()
+          window.location.href = "{{ url_for('image.index_view') }}" + "details/?id=" + body.id;
+        }
+      })
+    });
+  </script>
+{% endblock %}

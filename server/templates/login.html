@@ -1,0 +1,14 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+  <h3>Login</h3>
+  <input type="text" id="api_key" placeholder="api_key">
+  <button id="login">Login</button>
+
+  <script>
+    document.querySelector('#login').addEventListener('click', () => {
+      const key = document.querySelector('#api_key').value;
+      document.cookie = `api_key=${key}; path=/; SameSite=Lax;`; 
+      location.href = `{{ url_for('admin.index') }}`;
+    })
+  </script>
+{% endblock %}
